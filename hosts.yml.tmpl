@@ -1,0 +1,26 @@
+# This is a general purpose terraform -> ansible inventory template
+# Using this template, there are many ways to refer to hosts
+#   'all' can be used to refer to all hosts, of course
+#   'group_name[0]'
+#   name of resource + index
+# The k3-* groups should be left in for ansible-k3s, if we want to be able to use it
+# if you want to change the template on an existing `terraform apply` or change the inputs, just do another `terraform apply` and the new inventory will be generated
+all:
+    hosts:
+        ${ ansible_host }:
+            ansible_user: ${ ansible_user }
+            ansible_port: ${ ansible_port }
+    vars:
+        cyverse_user: ${ cyverse_user }
+        cyverse_pass: ${ cyverse_pass }
+        cyverse_upload_dir: ${ cyverse_upload_dir }
+
+        minio_alias: ${ minio_alias }
+        minio_endpoint: ${ minio_endpoint }
+        minio_external_url: ${ minio_external_url }
+        minio_bucket_name: ${ minio_bucket_name }
+        minio_access_key: ${ minio_access_key }
+        minio_secret_key: ${ minio_secret_key }
+
+        slack_webhook: ${ slack_webhook }
+

@@ -1,0 +1,120 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: minio-{{ minio_bucket_name }}
+  namespace: argo-events
+spec:
+  template:
+    serviceAccountName: operate-workflow-sa
+  dependencies:
+    - name: {{ minio_bucket_name }}-minio-dep
+      eventSourceName: minio-{{ minio_bucket_name }}
+      eventName: datacreated
+  triggers:
+    - template:
+        name: minio-workflow-trigger
+        k8s:
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: minio-{{ minio_bucket_name }}-wf-
+              spec:
+                entrypoint: eddie-dag
+                volumeClaimTemplates:
+                  - metadata:
+                      name: outgoing-dir
+                    spec:
+                      accessModes:
+                      - "ReadWriteOnce"
+                      storageClassName: local-path
+                      resources:
+                        requests:
+                          storage: 2Gi
+                arguments:
+                  parameters:
+                    - name: inputfile
+                artifactRepositoryRef:
+                  configMap: repository-{{ minio_bucket_name }}
+                  key: {{ minio_bucket_name}}
+                volumes:
+                  - name: gocmd-config-yml
+                    secret:
+                      secretName: gocmd
+                templates:
+                  # this is the dag
+                  - name: eddie-dag
+                    dag:
+                      tasks:
+                        - name: task-ultralytics
+                          template: ultralytics
+                        - name: task-gocmds
+                          template: gocmd
+                          dependencies: [task-ultralytics]
+                        - name: task-slack-notify
+                          template: slack
+                          dependencies: [task-gocmds]
+
+                  # first, use ultralytics to process any new files
+                  - name: ultralytics
+                    inputs:
+                      # parameters:
+                      #   - name: inputfile
+                      artifacts:
+                        - name: {{ minio_bucket_name }}
+                          path: "/opt/ultralytics/incoming/{{ '{{' }}workflow.parameters.inputfile{{ '}}' }}"
+                          s3:
+                            key: "{{ '{{' }}workflow.parameters.inputfile{{ '}}' }}"
+                    container:
+                      # image: registry.gitlab.com/stack0/edge-images/testing-app1:latest
+                      image: ultralytics/ultralytics:8.1.14-arm64
+                      args: ["yolo", "predict", "model=yolov8n.pt", "source='/opt/ultralytics/incoming/{{ '{{' }}workflow.parameters.inputfile{{ '}}' }}'"]
+                      volumeMounts:
+                      - name: outgoing-dir
+                        mountPath: /usr/src/ultralytics/runs
+                        # mountPath: /opt/ultralytics/runs
+
+                  # second, transfer any processed and resulting data
+                  - name: gocmd
+                    script:
+                      image: registry.gitlab.com/stack0/edge-images/gocmd:latest
+                      command: [bash]
+                      source: |
+                        find /opt/ultralytics
+                        gocmd -c /opt/gocmd/config.yaml put -f /usr/src/ultralytics/runs {{ cyverse_upload_dir }}
+                      volumeMounts:
+                      - name: outgoing-dir
+                        mountPath: /usr/src/ultralytics/runs
+                      - name: gocmd-config-yml
+                        mountPath: /opt/gocmd/
+                        readOnly: true
+
+                  # second, transfer any processed and resulting data
+                  - name: slack
+                    script:
+                      image: registry.gitlab.com/stack0/edge-images/gocmd:latest
+                      command: [bash]
+                      source: |
+                        cd /usr/src/ultralytics
+                        export SLACK_WEBHOOK_URL={{ slack_webhook }}
+                        cat << EOF >msg.txt
+                        {blocks: [{"type": "section","text": {"type": "mrkdwn","text": "The following files were processed from bucket {{ minio_bucket_name }}:\`\`\`
+                        EOF
+                        find runs -type f |sed -e 's/$/\\n/' >> msg.txt
+                        echo '```"}}]}' >> msg.txt
+                        cat msg.txt
+                        curl -X POST -H 'Content-type: application/json' --data "@msg.txt" ${SLACK_WEBHOOK_URL}
+                      volumeMounts:
+                      - name: outgoing-dir
+                        mountPath: /usr/src/ultralytics/runs
+
+          # The container args from the workflow are overridden by the s3 notification key
+          parameters:
+            - src:
+                dependencyName: {{ minio_bucket_name }}-minio-dep
+                dataKey: notification.0.s3.object.key
+              dest: spec.arguments.parameters.0.value
+      retryStrategy:
+        steps: 3

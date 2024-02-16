@@ -1,0 +1,14 @@
+- name: PLAY; install workflow
+  hosts: all
+  tasks:
+  - name: SET_FACT; set python interpreter
+    ansible.builtin.set_fact: ansible_python_interpreter="/usr/bin/python3"
+
+  - ansible.builtin.import_role:
+      name: minio
+
+  - ansible.builtin.import_role:
+      name: rclone
+
+  - ansible.builtin.import_role:
+      name: eddie

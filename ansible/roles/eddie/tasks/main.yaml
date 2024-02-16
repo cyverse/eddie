@@ -1,0 +1,22 @@
+---
+- name: FILE; create the /opt/eddie/{{ minio_bucket_name }} directory
+  file:
+    path: "/opt/eddie/{{ minio_bucket_name }}"
+    state: directory
+    mode: 0755
+    recurse: true
+
+- name: TEMPLATE; copy over the template files
+  template: 
+    src: "{{ item }}.j2"
+    dest: "/opt/eddie/{{ minio_bucket_name }}/{{ item}}"
+  loop:
+    - artifact-repository.yaml
+    - gocmd-secrets.yaml
+    - minio-event-source.yaml
+    - minio-secrets.yaml
+    - sensor.yaml
+
+- name: SHELL; apply the k8s resources
+  shell:
+    cmd: "kubectl apply -f /opt/eddie/{{ minio_bucket_name }}"

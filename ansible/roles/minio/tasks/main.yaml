@@ -1,0 +1,14 @@
+---
+- name: SHELL; mc alias set 
+  shell:
+    cmd: "mc alias set {{ minio_alias }} {{ minio_external_url }} {{ minio_access_key }} {{ minio_secret_key }}"
+
+- name: SHELL; test if bucket already exists
+  shell:
+    cmd: "mc ls {{ minio_alias }}/{{ minio_bucket_name}}"
+  register: minio_bucket_exists
+
+- name: SHELL; create bucket if it doesn't exist
+  shell:
+    cmd: "mc mb {{ minio_alias }}/{{ minio_bucket_name }}"
+  when: minio_bucket_exists is failed

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: repository-{{ minio_bucket_name }}
+  namespace: argo-events
+  annotations:
+    workflows.argoproj.io/default-artifact-repository: {{ minio_bucket_name }}
+data:
+  {{ minio_bucket_name }}: |
+    s3:
+      endpoint: {{ minio_endpoint }}
+      bucket: {{ minio_bucket_name }}
+      insecure: true
+      accessKeySecret:
+        key: accesskey
+        name: minio-{{ minio_bucket_name }}
+      secretKeySecret:
+        key: secretkey
+        name: minio-{{ minio_bucket_name }}
