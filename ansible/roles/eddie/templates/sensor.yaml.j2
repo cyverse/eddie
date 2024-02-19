@@ -33,6 +33,7 @@ spec:
                       resources:
                         requests:
                           storage: 2Gi
+
                 arguments:
                   parameters:
                     - name: inputfile
@@ -43,6 +44,10 @@ spec:
                   - name: gocmd-config-yml
                     secret:
                       secretName: gocmd
+                  - name: models-dir
+                    hostPath:
+                      path: {{ models_path }}
+                      type: Directory
                 templates:
                   # this is the dag
                   - name: eddie-dag
@@ -74,7 +79,8 @@ spec:
                       volumeMounts:
                       - name: outgoing-dir
                         mountPath: /usr/src/ultralytics/runs
-                        # mountPath: /opt/ultralytics/runs
+                      - name: models-dir
+                        mountPath: /opt/models
 
                   # second, transfer any processed and resulting data
                   - name: gocmd

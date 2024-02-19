@@ -20,3 +20,10 @@
 - name: SHELL; apply the k8s resources
   shell:
     cmd: "kubectl apply -f /opt/eddie/{{ minio_bucket_name }}"
+
+- name: FILE; create the {{ models_path }}
+  file:
+    path: "{{ models_path }}"
+    state: directory
+    mode: 0755
+    recurse: true

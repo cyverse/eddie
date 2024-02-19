@@ -66,3 +66,44 @@ variable "slack_webhook" {
   description = "string, if set, will send a slack message to this url"
   default = ""
 }
+
+variable "models_path" {
+  type = string
+  description = "string, the path to the models on the device"
+  default = "/opt/models"
+}
+
+variable "dvc_git_models_url" {
+  type = string
+  description = "string, git url to clone for dvc"
+  default = ""
+}
+
+variable "dvc_git_token" {
+  type = string
+  description = "string, git token for dvc"
+  default = ""
+}
+
+variable "dvc_model_path" {
+  type = string
+  description = "string, path to retrieve within the dvc repo"
+}
+
+variable "dvc_remote_storage_name" {
+  type = string
+  description = "string, name for the dvc remote storage"
+  default = ""
+}
+
+variable "dvc_remote_user" {
+  type = string
+  description = "string, if not set, will assume cyverse username"
+  default = ""
+}
+
+variable "dvc_remote_pass" {
+  type = string
+  description = "string, if not set, will assume cyverse password"
+  default = ""
+}
