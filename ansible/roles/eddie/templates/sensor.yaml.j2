@@ -41,9 +41,9 @@ spec:
                   configMap: repository-{{ minio_bucket_name }}
                   key: {{ minio_bucket_name}}
                 volumes:
-                  - name: gocmd-config-yml
+                  - name: eddie-config
                     secret:
-                      secretName: gocmd
+                      secretName: eddie-{{ minio_bucket_name }}
                   - name: models-dir
                     hostPath:
                       path: {{ models_path }}
@@ -75,7 +75,8 @@ spec:
                     container:
                       # image: registry.gitlab.com/stack0/edge-images/testing-app1:latest
                       image: ultralytics/ultralytics:8.1.14-arm64
-                      args: ["yolo", "predict", "model=yolov8n.pt", "source='/opt/ultralytics/incoming/{{ '{{' }}workflow.parameters.inputfile{{ '}}' }}'"]
+                      # args: ["yolo", "predict", "model=yolov8n.pt", "source='/opt/ultralytics/incoming/{{ '{{' }}workflow.parameters.inputfile{{ '}}' }}'"]
+                      args: ["yolo", "predict", "model=/opt/models/{{ dvc_model_path }}", "source='/opt/ultralytics/incoming/{{ '{{' }}workflow.parameters.inputfile{{ '}}' }}'"]
                       volumeMounts:
                       - name: outgoing-dir
                         mountPath: /usr/src/ultralytics/runs
@@ -93,8 +94,9 @@ spec:
                       volumeMounts:
                       - name: outgoing-dir
                         mountPath: /usr/src/ultralytics/runs
-                      - name: gocmd-config-yml
-                        mountPath: /opt/gocmd/
+                      - name: eddie-config
+                        mountPath: /opt/gocmd/config.yaml
+                        subPath: config.yaml
                         readOnly: true
 
                   # second, transfer any processed and resulting data

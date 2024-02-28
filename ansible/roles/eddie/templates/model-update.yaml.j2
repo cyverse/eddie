@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: model-update-{{ minio_bucket_name }}
+  namespace: argo-events
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: "Replace"
+  startingDeadlineSeconds: 0
+  failedJobsHistoryLimit: 5
+  workflowSpec:
+    entrypoint: dvc-model-update
+    volumes:
+    - name: models-dir
+      hostPath:
+        path: {{ models_path }}
+        type: Directory
+    templates:
+    - name: dvc-model-update
+      script:
+        image: stack0verflow/dvc-minimal
+        command: [sh]
+        source: |
+          set -x
+          cd /opt/models
+          if [ ! -d .git ]; then
+            git clone "https://oauth2:${GH_TOKEN}@${GH_URL}" .
+            dvc remote modify --local coalesce user "${CYVERSE_USER}"
+            dvc remote modify --local coalesce password "${CYVERSE_PASS}"
+          fi
+          git pull
+          dvc pull $MODELS_PATH
+        env:
+        - name: GH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: eddie-{{ minio_bucket_name }}
+              key: dvc_git_token
+        - name: GH_URL
+          valueFrom:
+            secretKeyRef:
+              name: eddie-{{ minio_bucket_name }}
+              key: dvc_git_models_url 
+        - name: MODELS_PATH
+          valueFrom:
+            secretKeyRef:
+              name: eddie-{{ minio_bucket_name }}
+              key: dvc_model_path      
+        - name: CYVERSE_USER
+          valueFrom:
+            secretKeyRef:
+              name: eddie-{{ minio_bucket_name }}
+              key: cyverse_user
+        - name: CYVERSE_PASS
+          valueFrom:
+            secretKeyRef:
+              name: eddie-{{ minio_bucket_name }}
+              key: cyverse_pass
+        volumeMounts:
+        - name: models-dir
+          mountPath: /opt/models

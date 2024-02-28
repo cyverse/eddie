@@ -51,8 +51,6 @@ resource "local_file" "ansible-inventory" {
         dvc_git_token = var.dvc_git_token
         dvc_model_path = var.dvc_model_path
         dvc_remote_storage_name = var.dvc_remote_storage_name
-        dvc_remote_user = var.dvc_remote_user != "" ? var.dvc_remote_user : var.cyverse_user
-        dvc_remote_pass = var.dvc_remote_pass != "" ? var.dvc_remote_pass : var.cyverse_pass
     })
     filename = "${path.module}/ansible/hosts.yml"
 }

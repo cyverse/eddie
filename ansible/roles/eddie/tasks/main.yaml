@@ -12,9 +12,10 @@
     dest: "/opt/eddie/{{ minio_bucket_name }}/{{ item}}"
   loop:
     - artifact-repository.yaml
-    - gocmd-secrets.yaml
+    - eddie-secrets.yaml
     - minio-event-source.yaml
     - minio-secrets.yaml
+    - model-update.yaml
     - sensor.yaml
 
 - name: SHELL; apply the k8s resources
