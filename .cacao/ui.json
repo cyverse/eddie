@@ -18,7 +18,6 @@
                 {
                     "name": "encoded_sshkey",
                     "ui_label": "Private SSH Key (base64 encoded)",
-                    "field_type": "password"
                 },
                 {
                     "name": "cyverse_asset_config_dir",
