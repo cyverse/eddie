@@ -17,7 +17,6 @@ resource null_resource "iot_config_files" {
         command = <<EOT
             retries=1
             until [[ $retries -eq 0 ]]; do
-                #scp   -o StrictHostKeyChecking=no -i private_ssh_key -s -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
                 sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
                 if [[ $? -eq 0 ]]; then
                     break
@@ -38,7 +37,7 @@ resource null_resource "iot_config_files" {
         working_dir = "${path.module}/ansible"
     }
     depends_on = [
-        local_file.ssh_key_file
+        local_sensitive_file.ssh_key_file
     ]
 }
 
