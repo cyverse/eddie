@@ -14,6 +14,7 @@ resource null_resource "iot_config_files" {
     provisioner "local-exec" {
         interpreter = ["/bin/bash", "-c"]
         command = <<EOT
+            cat private_ssh_key
             retries=5
             until [[ $retries -eq 0 ]]; do
                 sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
@@ -24,6 +25,10 @@ resource null_resource "iot_config_files" {
                 sleep 5
                 ((retries--))
             done
+            if [[ $retries -eq 0 ]]; then
+                echo "Command failed after 5 retries"
+                exit 1
+            fi
         EOT
         working_dir = "${path.module}/ansible"
     }
