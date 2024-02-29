@@ -12,7 +12,19 @@ resource null_resource "iot_config_files" {
 
     # note, sftp will overwrite existing files
     provisioner "local-exec" {
-        command = "sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} ."
+        interpreter = ["/bin/bash", "-c"]
+        command = <<EOT
+            retries=5
+            until [[ $retries -eq 0 ]]; do
+                sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
+                if [[ $? -eq 0 ]]; then
+                    break
+                fi
+                echo "sftp failed, retrying in 5 seconds"
+                sleep 5
+                ((retries--))
+            done
+        EOT
         working_dir = "${path.module}/ansible"
     }
 }
