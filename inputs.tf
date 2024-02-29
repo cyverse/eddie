@@ -1,6 +1,7 @@
 variable "cyverse_user" {
   type = string
   description = "string, the cyverse username"
+  default=""
 }
 
 variable "cyverse_asset_config_dir" {
@@ -8,6 +9,10 @@ variable "cyverse_asset_config_dir" {
   description = "string, path to the cyverse asset configuration directory"
 }
 
+variable "sshkey_base64" {
+  type=string
+  description = "string, base64-encoded ssh key"
+}
 # The following is minimally required for cacao
 variable "username" {
   type        = string

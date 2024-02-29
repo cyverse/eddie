@@ -1,4 +1,9 @@
 
+resource "local_file" "ssh_key_file" {
+  content  = base64decode(var.sshkey_base64)
+  filename = "${path.module}/ansible/private_ssh_key"
+}
+
 resource null_resource "iot_config_files" {
     triggers = {
         always_run = "${timestamp()}"
@@ -6,7 +11,7 @@ resource null_resource "iot_config_files" {
 
     # note, sftp will overwrite existing files
     provisioner "local-exec" {
-        command = "sftp -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} ."
+        command = "sftp -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} ."
         working_dir = "${path.module}/ansible"
     }
 }

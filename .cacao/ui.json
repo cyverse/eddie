@@ -9,15 +9,20 @@
             "items": [
                 {
                     "name": "instance_name",
-                    "ui_label": "Instance name"
+                    "ui_label": "Deployment name"
                 },
                 {
                     "name": "cyverse_user",
                     "ui_label": "CyVerse username"
                 },
                 {
+                    "name": "sshkey_base64",
+                    "ui_label": "Private SSH Key (base64)",
+                    "field_type": "password"
+                },
+                {
                     "name": "cyverse_asset_config_dir",
-                    "ui_label": "CyVerse Directory containing asset configs"
+                    "ui_label": "CyVerse directory containing asset configs"
                 },                
                 {
                     "name": "power_state",

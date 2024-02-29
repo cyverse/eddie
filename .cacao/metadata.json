@@ -4,7 +4,7 @@
     "name": "Event-Driven Detector for IOT and Edge",
     "author": "Edwin Skidmore",
     "author_email": "edwin@cyverse.org",
-    "description": "Deploys an event-driven detector for IOT and Edge devices",
+    "description": "Deploys an event-driven detector for IOT and Edge devices (only on COALESCE provider)",
     "template_type": "openstack_terraform",
     "purpose": "openstack_compute",
     "cacao_pre_tasks": [],
@@ -16,7 +16,7 @@
     ],
     "parameters": [
       {
-        "name": "instance_name",
+        "name": "Deployment name",
         "type": "string",
         "description": "Deployment name",
         "editable": true
@@ -25,6 +25,12 @@
         "name": "cyverse_user",
         "type": "string",
         "description": "CyVerse username to access asset configs",
+        "editable": true
+      },
+      {
+        "name": "sshkey_base64",
+        "type": "string",
+        "description": "base64-encoded private ssh key",
         "editable": true
       },
       {
