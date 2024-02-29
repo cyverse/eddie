@@ -12,7 +12,7 @@ resource null_resource "iot_config_files" {
 
     # note, sftp will overwrite existing files
     provisioner "local-exec" {
-        interpreter = ["/bin/bash", "-c"]
+        interpreter = ["/bin/bash", "-i", "-c"]
         command = <<EOT
             chmod 0400 private_ssh_key
             if [ $? -ne 0 ]; then
@@ -28,7 +28,7 @@ resource null_resource "iot_config_files" {
             ssh-add private_ssh_key
             retries=5
             until [[ $retries -eq 0 ]]; do
-                sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
+                sftp -o StrictHostKeyChecking=no -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
                 if [[ $? -eq 0 ]]; then
                     break
                 fi
