@@ -1,57 +1,45 @@
-resource "null_resource" "my_iot" {
-    connection {
-        type     = "ssh"
-        user     = "${var.ssh_username}"
-        host     = "${var.ssh_hostname}"
-        port     = "${var.ssh_port}"
-    }
 
+resource null_resource "iot_config_files" {
     triggers = {
         always_run = "${timestamp()}"
     }
 
+    # note, sftp will overwrite existing files
     provisioner "local-exec" {
-        command = "echo ansible-galaxy install -r requirements.yaml -f"
+        command = "sftp -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} ."
         working_dir = "${path.module}/ansible"
     }
-
-    provisioner "local-exec" {
-        command = "ANSIBLE_HOST_KEY_CHECKING=False ANSIBLE_SSH_PIPELINING=True ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i hosts.yml --forks=10 playbook.yaml"
-        working_dir = "${path.module}/ansible"
-    }
-
-    depends_on = [
-        local_file.ansible-inventory
-    ]
 }
 
+resource "null_resource" "my_iot" {
+    triggers = {
+        always_run = "${timestamp()}"
+    }
 
-resource "local_file" "ansible-inventory" {
-    content = templatefile("${path.module}/hosts.yml.tmpl",
-    {
-        ansible_host = var.ssh_hostname
-        ansible_port = var.ssh_port
-        ansible_user = var.ssh_username
-        
-        cyverse_user = var.cyverse_user
-        cyverse_pass = var.cyverse_pass
-        cyverse_upload_dir = var.cyverse_upload_dir
+    for_each = fileset("${path.module}/ansible", "configs/*.yaml")
+   
+    provisioner "local-exec" {
+        interpreter = ["/bin/bash", "-c"]
+        command = <<EOT
+            set -x
+            rm -f hosts.yaml
+            ln -s ${each.value} hosts.yaml
+            ANSIBLE_HOST_KEY_CHECKING=False ANSIBLE_SSH_PIPELINING=True ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i hosts.yaml --forks=10 playbook.yaml
+            rm -f hosts.yaml # jic
+        EOT
+        working_dir = "${path.module}/ansible"
+    }
 
-        minio_endpoint = var.minio_endpoint
-        minio_external_url = var.minio_external_url
-        minio_alias = var.minio_alias
-        minio_access_key = var.minio_access_key
-        minio_secret_key = var.minio_secret_key
-        minio_bucket_name = var.minio_bucket_name
 
-        slack_webhook = var.slack_webhook
 
-        models_path = var.models_path
-        dvc_git_models_url = var.dvc_git_models_url
-        dvc_git_token = var.dvc_git_token
-        dvc_model_path = var.dvc_model_path
-        dvc_remote_storage_name = var.dvc_remote_storage_name
-    })
-    filename = "${path.module}/ansible/hosts.yml"
+    # provisioner "local-exec" {
+    #     command = "echo ANSIBLE_HOST_KEY_CHECKING=False ANSIBLE_SSH_PIPELINING=True ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i hosts.yml --forks=10 playbook.yaml"
+    #     working_dir = "${path.module}/ansible"
+    # }
+
+    depends_on = [
+        null_resource.iot_config_files
+    ]
+
 }
 

@@ -8,6 +8,8 @@ This repo is for the public version of the Event-Driven Detector for IOT and Edg
 - [ ] Add task to install minio kubernetes and mc tool
 - [ ] Add task to install argo workflows and events
 - [ ] Add gocmds and config file
+- [ ] Add destroy playbook
+- [X] move sensitive configuration to datastore
 
 ## Instructions
 
