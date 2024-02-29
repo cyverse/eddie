@@ -1,0 +1,30 @@
+{
+    "schema_url": "https://gitlab.com/cyverse/cacao-common/-/raw/master/template/ui-schemas/v1/schema.json",
+    "schema_version": "1",
+    "author": "Edwin Skidmore",
+    "author_email": "edwin@cyverse.org",
+    "steps": [
+        {
+            "title": "Parameters",
+            "items": [
+                {
+                    "name": "instance_name",
+                    "ui_label": "Instance name"
+                },
+                {
+                    "name": "cyverse_user",
+                    "ui_label": "CyVerse username"
+                },
+                {
+                    "name": "cyverse_asset_config_dir",
+                    "ui_label": "CyVerse Directory containing asset configs"
+                },                
+                {
+                    "name": "power_state",
+                    "ui_label": "Power state"
+                }
+            ]
+        }
+    ]
+}
+

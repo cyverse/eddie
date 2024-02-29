@@ -1,0 +1,57 @@
+{
+    "schema_url": "https://gitlab.com/cyverse/cacao-common/-/raw/master/template/metadata-schemas/v3/schema.json",
+    "schema_version": "3",
+    "name": "Event-Driven Detector for IOT and Edge",
+    "author": "Edwin Skidmore",
+    "author_email": "edwin@cyverse.org",
+    "description": "Deploys an event-driven detector for IOT and Edge devices",
+    "template_type": "openstack_terraform",
+    "purpose": "openstack_compute",
+    "cacao_pre_tasks": [],
+    "cacao_post_tasks": [
+      {
+        "type": "ansible",
+        "location": "cacao_atmosphere_legacy"
+      }
+    ],
+    "parameters": [
+      {
+        "name": "instance_name",
+        "type": "string",
+        "description": "Deployment name",
+        "editable": true
+      },
+      {
+        "name": "cyverse_user",
+        "type": "string",
+        "description": "CyVerse username to access asset configs",
+        "editable": true
+      },
+      {
+        "name": "cyverse_asset_config_dir",
+        "type": "string",
+        "description": "Directory containing asset configuration files",
+        "editable": true
+      },
+      {
+        "name": "project",
+        "type": "cacao_provider_project",
+        "description": "OpenStack Project ID",
+        "default": ""
+      },
+      {
+        "name": "power_state",
+        "type": "string",
+        "default": "active",
+        "enum": ["active", "shutoff", "suspend", "shelved_offloaded"],
+        "description": "Power state",
+        "editable": true
+      },
+      {
+            "name": "username",
+            "type": "string",
+            "description": "CACAO username"
+      }      
+    ]
+  }
+  
