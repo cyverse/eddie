@@ -11,7 +11,7 @@ resource null_resource "iot_config_files" {
 
     # note, sftp will overwrite existing files
     provisioner "local-exec" {
-        command = "sftp -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} ."
+        command = "sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} ."
         working_dir = "${path.module}/ansible"
     }
 }
