@@ -1,6 +1,7 @@
 
-resource "local_file" "ssh_key_file" {
-  content  = base64decode(var.sshkey_base64)
+resource "local_sensitive_file" "ssh_key_file" {
+#   content_base64  = base64decode(var.sshkey_base64)
+  content_base64  = var.sshkey_base64
   filename = "${path.module}/ansible/private_ssh_key"
   file_permission = "0400"
 }
@@ -14,20 +15,7 @@ resource null_resource "iot_config_files" {
     provisioner "local-exec" {
         interpreter = ["/bin/bash", "-c"]
         command = <<EOT
-            # needed because local_file provisioner permissions didn't seem to work properly
-            chmod 0400 private_ssh_key
-            if [ $? -ne 0 ]; then
-                echo "chmod failed"
-                exit 1
-            fi
-            # echo
-            # cat private_ssh_key
-            # if [ $? -ne 0 ]; then
-            #     echo "cat private_ssh_key failed"
-            #     exit 1
-            # fi
-            # ssh-add private_ssh_key
-            retries=5
+            retries=1
             until [[ $retries -eq 0 ]]; do
                 #scp   -o StrictHostKeyChecking=no -i private_ssh_key -s -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
                 sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
@@ -41,6 +29,10 @@ resource null_resource "iot_config_files" {
             if [[ $retries -eq 0 ]]; then
                 echo "Command failed after 5 retries"
                 exit 1
+            else
+                echo "sftp succeeded"
+                echo "list of configurations found"
+                ls -laFh configs
             fi
         EOT
         working_dir = "${path.module}/ansible"
@@ -69,16 +61,16 @@ resource "null_resource" "my_iot" {
         working_dir = "${path.module}/ansible"
     }
 
-
+    depends_on = [
+        null_resource.iot_config_files, local_sensitive_file.ssh_key_file
+    ]
 
     # provisioner "local-exec" {
     #     command = "echo ANSIBLE_HOST_KEY_CHECKING=False ANSIBLE_SSH_PIPELINING=True ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i hosts.yml --forks=10 playbook.yaml"
     #     working_dir = "${path.module}/ansible"
     # }
 
-    depends_on = [
-        null_resource.iot_config_files
-    ]
+
 
 }
 
