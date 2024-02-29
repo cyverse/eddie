@@ -59,7 +59,7 @@ resource "null_resource" "my_iot" {
                 echo "processing $fn"
                 rm -f hosts.yaml
                 ln -s $fn hosts.yaml
-                ansible-playbook -i hosts.yaml -e ansible_ssh_private_key_file=private_ssh_key --forks=10 playbook.yaml
+                ansible-playbook -i hosts.yaml --private-key private_ssh_key --forks=10 playbook.yaml
             done
         EOT
         working_dir = "${path.module}/ansible"
