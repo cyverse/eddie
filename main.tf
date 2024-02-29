@@ -45,17 +45,19 @@ resource "null_resource" "my_iot" {
     triggers = {
         always_run = "${timestamp()}"
     }
-
-    for_each = fileset("${path.module}/ansible", "configs/*.yaml")
-   
+       
     provisioner "local-exec" {
         interpreter = ["/bin/bash", "-c"]
         command = <<EOT
             set -x
-            rm -f hosts.yaml
-            ln -s ${each.value} hosts.yaml
-            ANSIBLE_HOST_KEY_CHECKING=False ANSIBLE_SSH_PIPELINING=True ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i hosts.yaml --forks=10 playbook.yaml
-            rm -f hosts.yaml # jic
+            # looping because terraform for_each/fileset not working as expected
+            dir=configs
+            for fn in $dir/*.yaml; do
+                echo "processing $fn"
+                rm -f hosts.yaml
+                ln -s $fn hosts.yaml
+                ANSIBLE_HOST_KEY_CHECKING=False ANSIBLE_SSH_PIPELINING=True ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i hosts.yaml --forks=10 playbook.yaml
+            done
         EOT
         working_dir = "${path.module}/ansible"
     }
@@ -63,13 +65,5 @@ resource "null_resource" "my_iot" {
     depends_on = [
         null_resource.iot_config_files, local_sensitive_file.ssh_key_file
     ]
-
-    # provisioner "local-exec" {
-    #     command = "echo ANSIBLE_HOST_KEY_CHECKING=False ANSIBLE_SSH_PIPELINING=True ANSIBLE_CONFIG=ansible.cfg ansible-playbook -i hosts.yml --forks=10 playbook.yaml"
-    #     working_dir = "${path.module}/ansible"
-    # }
-
-
-
 }
 
