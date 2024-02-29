@@ -10,7 +10,7 @@ variable "cyverse_asset_config_dir" {
 }
 
 variable "encoded_sshkey" {
-  type=string
+  type = string
   description = "string, base64-encoded ssh key"
 }
 # The following is minimally required for cacao
