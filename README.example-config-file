@@ -1,0 +1,27 @@
+# This directory contains example config files
+#
+# The format should be a valid ansible inventory file
+all:
+    hosts:
+        my-server-hostname-or-ip:
+            ansible_user: myuser
+            ansible_port: 22
+    vars:
+        cyverse_user: my-cyverse-username
+        cyverse_pass: my-cyverse-password
+        cyverse_upload_dir: the-cyverse-upload-directory-for-processed-images
+
+        minio_alias: myminio
+        minio_endpoint: minio-service.default:9001
+        minio_external_url: http://1.2.3.4:9001
+        minio_bucket_name: coalesce-data-incoming
+        minio_access_key: minio-access-key
+        minio_secret_key: minio-secret-key
+
+        slack_webhook: https://hooks.slack.com/services/some-endpoint
+
+        models_path: /opt/models
+        dvc_git_models_url: git@github.com:somerepo.git
+        dvc_git_token: some-github-token
+        dvc_model_path: some-dir/model.pt
+        dvc_remote_storage_name: coalesce
