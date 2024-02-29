@@ -1,6 +1,11 @@
 # eddie
 This repo is for the public version of the Event-Driven Detector for IOT and Edge (EDDIE). 
 
+# Pre-requisites
+- k3s installed
+- minio installed and object storage configured
+- argo installed
+
 # TODO
 - [ ] Add task to install k3s
 - [ ] Add task to install kubectl
@@ -15,9 +20,8 @@ This repo is for the public version of the Event-Driven Detector for IOT and Edg
 
 1. create a file called `terraform.tfvars` with the following content:
 ```
-ssh_username="myusername"
-ssh_hostname="myhostname"
+cyverse_user="myusername"
+cyverse_asset_config_dir="/iplant/home/some/dir/to/config"
 ```
 1. `terraform init`
-2. `eval ``ssh-agent -s`` `
 3. `terraform apply -auto-approve`
