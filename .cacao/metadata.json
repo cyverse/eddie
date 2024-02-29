@@ -28,7 +28,7 @@
         "editable": true
       },
       {
-        "name": "sshkey_base64",
+        "name": "encoded_sshkey",
         "type": "string",
         "description": "base64-encoded private ssh key",
         "editable": true

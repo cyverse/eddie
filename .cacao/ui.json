@@ -16,8 +16,8 @@
                     "ui_label": "CyVerse username"
                 },
                 {
-                    "name": "sshkey_base64",
-                    "ui_label": "Private SSH Key",
+                    "name": "encoded_sshkey",
+                    "ui_label": "Private SSH Key (base64 encoded)",
                     "field_type": "password"
                 },
                 {
