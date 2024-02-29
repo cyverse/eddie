@@ -2,6 +2,7 @@
 resource "local_file" "ssh_key_file" {
   content  = base64decode(var.sshkey_base64)
   filename = "${path.module}/ansible/private_ssh_key"
+  file_permission = "0400"
 }
 
 resource null_resource "iot_config_files" {
