@@ -17,7 +17,7 @@
                 },
                 {
                     "name": "sshkey_base64",
-                    "ui_label": "Private SSH Key (base64)",
+                    "ui_label": "Private SSH Key",
                     "field_type": "password"
                 },
                 {
