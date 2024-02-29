@@ -25,6 +25,7 @@ resource null_resource "iot_config_files" {
                 echo "cat private_ssh_key failed"
                 exit 1
             fi
+            ssh-add private_ssh_key
             retries=5
             until [[ $retries -eq 0 ]]; do
                 sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
