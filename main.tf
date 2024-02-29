@@ -14,22 +14,23 @@ resource null_resource "iot_config_files" {
     provisioner "local-exec" {
         interpreter = ["/bin/bash", "-c"]
         command = <<EOT
+            # needed because local_file provisioner permissions didn't seem to work properly
             chmod 0400 private_ssh_key
             if [ $? -ne 0 ]; then
                 echo "chmod failed"
                 exit 1
             fi
-            echo
-            cat private_ssh_key
-            if [ $? -ne 0 ]; then
-                echo "cat private_ssh_key failed"
-                exit 1
-            fi
+            # echo
+            # cat private_ssh_key
+            # if [ $? -ne 0 ]; then
+            #     echo "cat private_ssh_key failed"
+            #     exit 1
+            # fi
             # ssh-add private_ssh_key
             retries=5
             until [[ $retries -eq 0 ]]; do
-                scp   -o StrictHostKeyChecking=no -i private_ssh_key -s -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
-                #sftp -o StrictHostKeyChecking=no -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
+                #scp   -o StrictHostKeyChecking=no -i private_ssh_key -s -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
+                sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
                 if [[ $? -eq 0 ]]; then
                     break
                 fi
