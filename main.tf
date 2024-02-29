@@ -15,7 +15,16 @@ resource null_resource "iot_config_files" {
         interpreter = ["/bin/bash", "-c"]
         command = <<EOT
             chmod 0400 private_ssh_key
+            if [ $? -ne 0 ]; then
+                echo "chmod failed"
+                exit 1
+            fi
+            echo
             cat private_ssh_key
+            if [ $? -ne 0 ]; then
+                echo "cat private_ssh_key failed"
+                exit 1
+            fi
             retries=5
             until [[ $retries -eq 0 ]]; do
                 sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
