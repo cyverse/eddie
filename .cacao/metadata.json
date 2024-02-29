@@ -16,7 +16,7 @@
     ],
     "parameters": [
       {
-        "name": "Deployment name",
+        "name": "instance_name",
         "type": "string",
         "description": "Deployment name",
         "editable": true
@@ -28,7 +28,7 @@
         "editable": true
       },
       {
-        "name": "encoded_sshkey",
+        "name": "sshkey_base64",
         "type": "string",
         "description": "base64-encoded private ssh key",
         "editable": true

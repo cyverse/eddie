@@ -9,7 +9,7 @@ variable "cyverse_asset_config_dir" {
   description = "string, path to the cyverse asset configuration directory"
 }
 
-variable "encoded_sshkey" {
+variable "sshkey_base64" {
   type = string
   description = "string, base64-encoded ssh key"
 }
