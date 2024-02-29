@@ -14,6 +14,7 @@ resource null_resource "iot_config_files" {
     provisioner "local-exec" {
         interpreter = ["/bin/bash", "-c"]
         command = <<EOT
+            chmod 0400 private_ssh_key
             cat private_ssh_key
             retries=5
             until [[ $retries -eq 0 ]]; do
@@ -32,6 +33,9 @@ resource null_resource "iot_config_files" {
         EOT
         working_dir = "${path.module}/ansible"
     }
+    depends_on = [
+        local_file.ssh_key_file
+    ]
 }
 
 resource "null_resource" "my_iot" {

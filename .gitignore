@@ -3,3 +3,4 @@ terraform.tfvars
 terraform.tfstate*
 ansible/hosts.yml
 ansible/configs
+ansible/private_ssh_key
