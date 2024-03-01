@@ -1,0 +1,5 @@
+#!/bin/bash
+
+access_token=$(cat {{ thingsboard_device_access_token_path }})
+loadavg=$(uptime | awk '{print $12}' | cut -d "," -f 1)
+mosquitto_pub -d -q 1 -h "{{ thingsboard_host }}" -p {{ thingsboard_mqtt_port }} -t "v1/devices/me/telemetry" -u "${access_token}" -m {"load_average":${loadavg}}

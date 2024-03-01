@@ -17,7 +17,8 @@ resource null_resource "iot_config_files" {
         command = <<EOT
             retries=1
             until [[ $retries -eq 0 ]]; do
-                sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
+                # sftp -o StrictHostKeyChecking=no -i private_ssh_key -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
+                sftp -o StrictHostKeyChecking=no -r ${var.cyverse_user}@data.cyverse.org:${var.cyverse_asset_config_dir} .
                 if [[ $? -eq 0 ]]; then
                     break
                 fi
@@ -57,9 +58,8 @@ resource "null_resource" "my_iot" {
             export ANSIBLE_CONFIG=ansible.cfg
             for fn in $dir/*.yaml; do
                 echo "processing $fn"
-                # rm -f hosts.yaml
-                # ln -s $fn hosts.yaml
-                ansible-playbook -i $fn --private-key private_ssh_key --forks=10 playbook.yaml
+                # ansible-playbook -i $fn --private-key private_ssh_key --forks=10 playbook.yaml
+                ansible-playbook -i $fn --forks=10 playbook.yaml
             done
         EOT
         working_dir = "${path.module}/ansible"

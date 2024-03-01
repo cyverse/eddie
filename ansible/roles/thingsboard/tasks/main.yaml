@@ -1,0 +1,59 @@
+---
+- name: FILE; create the thingsboard install directory
+  file:
+    path: "{{ thingsboard_install_path }}"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+
+- name: TEMPLATE; copy over the template files
+  template: 
+    src: "{{ item }}.j2"
+    dest: "{{ thingsboard_install_path }}/{{ item}}"
+    mode: 0755
+  loop:
+    - tb-device-provision.py
+    - tb-sys-telemetry.sh
+
+- name: SHELL; call the provisioning script if necessary
+  shell: "python {{ thingsboard_install_path }}/tb-device-provision.py"
+  args:
+    creates: "{{ thingsboard_device_access_token_path }}"
+    chdir: "{{ thingsboard_install_path }}"
+
+- name: COPY; copy over thingsboard telemetry cron
+  copy:
+    content: |
+      SHELL=/bin/bash
+      PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+      * * * * * root {{ thingsboard_install_path }}/tb-sys-telemetry.sh > /var/log/tb-sys-telemetry.log 2>&1
+    dest: "/etc/cron.d/eddie-thingsboard"
+    mode: 0755
+    owner: root
+    group: root
+
+- name: COPY; copy over logrotate for telemetry cron
+  copy:
+    content: |
+      /var/log/tb-sys-telemetry.log {
+        rotate 3
+        daily
+        compress
+        missingok
+      }
+    dest: "/etc/logrotate.d/eddie-thingsboard"
+    mode: 0755
+    owner: root
+    group: root
+
+- name: SLURP; read in the thingsboard device access token
+  ansible.builtin.slurp:
+    src: "{{ thingsboard_device_access_token_path }}"
+  register: tb_access_token_file
+  when: thingsboard_device_access_token_path is defined and thingsboard_device_access_token_path != ""
+
+- name: SET_FACT; set thingsboard device access token
+  ansible.builtin.set_fact:
+    thingsboard_device_access_token: "{{ tb_access_token_file['content'] | b64decode }}"
+  when: thingsboard_device_access_token_path is defined and thingsboard_device_access_token_path != ""

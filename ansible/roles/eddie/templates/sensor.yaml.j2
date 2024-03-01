@@ -61,6 +61,9 @@ spec:
                         - name: task-slack-notify
                           template: slack
                           dependencies: [task-gocmds]
+                        - name: task-thingsboard-notify
+                          template: thingsboard
+                          dependencies: [task-ultralytics]
 
                   # first, use ultralytics to process any new files
                   - name: ultralytics
@@ -99,7 +102,7 @@ spec:
                         subPath: config.yaml
                         readOnly: true
 
-                  # second, transfer any processed and resulting data
+                  # third, transfer any processed and resulting data
                   - name: slack
                     script:
                       image: registry.gitlab.com/stack0/edge-images/gocmd:latest
@@ -117,6 +120,20 @@ spec:
                       volumeMounts:
                       - name: outgoing-dir
                         mountPath: /usr/src/ultralytics/runs
+
+                  - name: thingsboard
+                    script:
+                      image: registry.gitlab.com/stack0/edge-images/mqtt-clients:latest
+                      command: [sh]
+                      source: |
+                        mosquitto_pub -d -q 1 -h "{{ thingsboard_host }}" -p {{ thingsboard_mqtt_port }} -t "v1/devices/me/telemetry" -u "${ACCESS_TOKEN}" -m {"image_count":1}
+                      env:
+                      - name: ACCESS_TOKEN
+                        valueFrom:
+                          secretKeyRef:
+                            name: eddie-{{ minio_bucket_name }}
+                            key: thingsboard_device_access_token
+
 
           # The container args from the workflow are overridden by the s3 notification key
           parameters:

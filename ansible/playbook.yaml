@@ -5,6 +5,10 @@
     ansible.builtin.set_fact: ansible_python_interpreter="/usr/bin/python3"
 
   - ansible.builtin.import_role:
+      name: thingsboard
+    when: thingsboard_host is defined and thingsboard_host != ""
+
+  - ansible.builtin.import_role:
       name: minio
 
   - ansible.builtin.import_role:
