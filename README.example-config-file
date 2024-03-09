@@ -22,7 +22,8 @@ all:
         slack_webhook: https://hooks.slack.com/services/some-endpoint
 
         models_path: /opt/models
-        dvc_git_models_url: git@github.com:somerepo.git
+        # without the https or git
+        dvc_git_models_url: github.com/user/somerepo.git
         dvc_git_token: some-github-token
         dvc_model_path: some-dir/model.pt
         dvc_remote_storage_name: coalesce

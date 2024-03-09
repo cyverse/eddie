@@ -28,7 +28,12 @@ spec:
             dvc remote modify --local coalesce user "${CYVERSE_USER}"
             dvc remote modify --local coalesce password "${CYVERSE_PASS}"
           fi
-          git pull
+          git fetch
+          git branch|grep ${MODEL_VERSION}
+          if [ $? -ne 0 ]; then
+            git checkout -b ${MODEL_VERSION} origin/${MODEL_VERSION}
+          fi
+          git checkout ${MODEL_VERSION}
           dvc pull $MODELS_PATH
         env:
         - name: GH_TOKEN
@@ -46,6 +51,11 @@ spec:
             secretKeyRef:
               name: eddie-{{ minio_bucket_name }}
               key: dvc_model_path      
+        - name: MODEL_VERSION
+          valueFrom:
+            secretKeyRef:
+              name: eddie-{{ minio_bucket_name }}
+              key: dvc_model_version
         - name: CYVERSE_USER
           valueFrom:
             secretKeyRef:

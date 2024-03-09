@@ -34,6 +34,18 @@
         "editable": true
       },
       {
+        "name": "model_path_override",
+        "type": "string",
+        "description": "Specify a model path to override the configured default or leave blank",
+        "editable": true
+      },
+      {
+        "name": "model_version_override",
+        "type": "string",
+        "description": "Specify a model version to override the configured default or leave blank",
+        "editable": true
+      },
+      {
         "name": "cyverse_asset_config_dir",
         "type": "string",
         "description": "Directory containing asset configuration files",

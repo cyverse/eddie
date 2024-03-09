@@ -58,11 +58,15 @@ resource "null_resource" "my_iot" {
             export ANSIBLE_CONFIG=ansible.cfg
             for fn in $dir/*.yaml; do
                 echo "processing $fn"
-                # ansible-playbook -i $fn --private-key private_ssh_key --forks=10 playbook.yaml
-                ansible-playbook -i $fn --forks=10 playbook.yaml
+                ansible-playbook -i $fn -e model_path_override="$MODEL_PATH_OVERRIDE" -e model_version_override="$MODEL_VERSION_OVERRIDE" --forks=10 playbook.yaml
             done
         EOT
         working_dir = "${path.module}/ansible"
+
+        environment = {
+          MODEL_PATH_OVERRIDE = var.model_path_override
+          MODEL_VERSION_OVERRIDE = var.model_version_override
+        }
     }
 
     depends_on = [

@@ -21,6 +21,14 @@
                     "field_type": "password"
                 },
                 {
+                    "name": "model_path_override",
+                    "ui_label": "Override configured Model Path (or leave blank)"
+                },
+                {
+                    "name": "model_version_override",
+                    "ui_label": "Override configured Model Path (or leave blank)"
+                },
+                {
                     "name": "cyverse_asset_config_dir",
                     "ui_label": "CyVerse directory containing asset configs"
                 },                

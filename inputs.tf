@@ -13,6 +13,18 @@ variable "sshkey_base64" {
   type = string
   description = "string, base64-encoded ssh key"
 }
+
+variable "model_path_override" {
+  type = string
+  description = "string, path to the model file"
+  default = ""
+}
+variable "model_version_override" {
+  type = string
+  description = "string, branch, commit, or tag of the model"
+  default = ""
+}
+
 # The following is minimally required for cacao
 variable "username" {
   type        = string
@@ -38,3 +50,4 @@ variable "project" {
   description = "project name"
   default = ""
 }
+
