@@ -7,6 +7,7 @@ all:
             ansible_user: myuser
             ansible_port: 22
     vars:
+        device_name: "myserver"
         cyverse_user: my-cyverse-username
         cyverse_pass: my-cyverse-password
         cyverse_upload_dir: the-cyverse-upload-directory-for-processed-images
@@ -25,3 +26,10 @@ all:
         dvc_git_token: some-github-token
         dvc_model_path: some-dir/model.pt
         dvc_remote_storage_name: coalesce
+        dvc_branch: "main"
+
+        thingsboard_host: "thingsboard.host.edu"
+        thingsboard_mqtt_port: 1883
+        thingsboard_device_key: "key"
+        thingsboard_device_secret: "secret"
+        thingsboard_install_path: /opt/thingsboard
