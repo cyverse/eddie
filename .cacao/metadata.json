@@ -45,7 +45,7 @@
         "type": "string",
         "description": "Specify a model version to override the configured default or leave blank",
         "editable": true,
-        
+        "default": ""
       },
       {
         "name": "cyverse_asset_config_dir",
