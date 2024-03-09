@@ -9,9 +9,9 @@ variable "cyverse_asset_config_dir" {
   description = "string, path to the cyverse asset configuration directory"
 }
 
-variable "sshkey_base64" {
+variable "cyverse_pass" {
   type = string
-  description = "string, base64-encoded ssh key"
+  description = "string, cyverse password"
 }
 
 variable "model_path_override" {

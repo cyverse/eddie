@@ -28,9 +28,9 @@
         "editable": true
       },
       {
-        "name": "sshkey_base64",
+        "name": "cyverse_pass",
         "type": "string",
-        "description": "base64-encoded private ssh key",
+        "description": "cyerse password",
         "editable": true
       },
       {
