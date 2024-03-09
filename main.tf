@@ -27,7 +27,8 @@ resource null_resource "iot_config_files" {
 
             cat gocmd.yaml
 
-            ./gocmd -c gocmd.yaml get ${var.cyverse_asset_config_dir}          
+            ./gocmd -c gocmd.yaml get ${var.cyverse_asset_config_dir}
+            chmod 0400 configs/ssh_key          
         EOT
         working_dir = "${path.module}/ansible"
     }
