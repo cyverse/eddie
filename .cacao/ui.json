@@ -22,7 +22,8 @@
                 },
                 {
                     "name": "model_path_override",
-                    "ui_label": "Override configured Model Path (or leave blank)"
+                    "ui_label": "Override configured Model Path (or leave blank)",
+                    "field_type": "select"
                 },
                 {
                     "name": "model_version_override",
