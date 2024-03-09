@@ -1,6 +1,7 @@
 # This directory contains example config files
 #
 # The format should be a valid ansible inventory file
+# Note, for now, the config directory should have a file called ssh_key, which will be used to connect to your edge device/gateway
 all:
     hosts:
         my-server-hostname-or-ip:
