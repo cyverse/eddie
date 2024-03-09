@@ -38,6 +38,7 @@
         "type": "string",
         "description": "Specify a model path to override the configured default or leave blank",
         "editable": true,
+        "default": "",
         "enum": ["","trainN1_coco_IP102_our_640_500_yolos_DONE/weights/best.pt","trainH5_coco_kaggle_our_640_DONE/weights/best.pt","trainH3_coco_ourdata_640_500_DONE/weights/best.pt","trainH3_coco_Pest24_ourdata_640_500_yolos_DONE/weights/best.pt"]
       },
       {
