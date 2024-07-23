@@ -18,6 +18,7 @@
       pip:
         name:
           - kubernetes
+          - dvc
         state: present
 
     - name: FILE; create the eddie_install_dir
@@ -25,11 +26,11 @@
         path: "{{ eddie_install_dir }}"
         state: directory
 
-    # - ansible.builtin.import_role:
-    #     name: cyverse-ansible.docker
+    - ansible.builtin.import_role:
+        name: cyverse-ansible.docker
 
-    # - ansible.builtin.import_role:
-    #     name: cyverse-ansible.ansible_k3s
+    - ansible.builtin.import_role:
+        name: cyverse-ansible.ansible_k3s
 
     - name: FILE; create directory for root if necessary
       ansible.builtin.file:
@@ -46,10 +47,8 @@
         group: root
         mode: '0640'
 
-
-
-    # - ansible.builtin.import_role:
-    #     name: k8s_tools
+    - ansible.builtin.import_role:
+        name: k8s_tools
 
     - ansible.builtin.import_role:
         name: argo
@@ -58,14 +57,14 @@
   #     name: thingsboard
   #   when: thingsboard_host is defined and thingsboard_host != ""
 
-    # - ansible.builtin.import_role:
-    #     name: minio
+    - ansible.builtin.import_role:
+        name: minio
 
-    # - ansible.builtin.import_role:
-    #     name: rclone
+    - ansible.builtin.import_role:
+        name: rclone
 
-  # - ansible.builtin.import_role:
-  #     name: eddie
+    - ansible.builtin.import_role:
+        name: eddie
 
 - name: PLAY; install controller
   hosts: all
