@@ -1,0 +1,5 @@
+cyverse_user="someuser"
+cyverse_asset_config_dir="/iplant/home/shared/project/configs"
+instance_name="someinstance"
+username="notused"
+cyverse_pass="somepassword"

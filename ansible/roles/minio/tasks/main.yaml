@@ -1,12 +1,52 @@
 ---
+# TODO create minio host path, minio_host_path
+- name: FILE; create the minio_host_path
+  file:
+    path: "{{ minio_host_path }}"
+    state: directory
+
+- name: TEMPLATE; copy over the template files
+  template: 
+    src: "{{ item }}.j2"
+    dest: "/opt/eddie/{{ item}}"
+  loop:
+    - minio.yaml
+
+- name: SHELL; apply minio.yaml
+  shell: "kubectl apply -f /opt/eddie/minio.yaml"
+
+- name: SHELL; get the minio external cluster url
+  shell: kubectl get svc minio-service -o json|jq -r '.spec.clusterIP'
+  register: kubectl
+
+- name: SET_FACT; set the minio cluster url
+  set_fact:
+    minio_cluster_ip: kubectl.stdout
+    minio_cluster_url: http://{{ kubectl.stdout }}:9001
+
+- name: GET_URL; download the minio client, mc, for amd64
+  ansible.builtin.get_url: 
+    url: https://dl.min.io/client/mc/release/linux-amd64/mc
+    dest: /usr/local/bin/mc
+    mode: 0755
+  when: ansible_architecture == "x86_64"
+
+- name: GET_URL; download the minio client, mc, for arm
+  ansible.builtin.get_url: 
+    url: https://dl.min.io/client/mc/release/linux-arm64/mc
+    dest: /usr/local/bin/mc
+    mode: 0755
+  when: ansible_architecture == "aarch64"
+
 - name: SHELL; mc alias set 
   shell:
-    cmd: "mc alias set {{ minio_alias }} {{ minio_external_url }} {{ minio_access_key }} {{ minio_secret_key }}"
+    cmd: "mc alias set {{ minio_alias }} {{ minio_cluster_url }} {{ minio_access_key }} {{ minio_secret_key }}"
 
 - name: SHELL; test if bucket already exists
   shell:
     cmd: "mc ls {{ minio_alias }}/{{ minio_bucket_name}}"
   register: minio_bucket_exists
+  failed_when: false
 
 - name: SHELL; create bucket if it doesn't exist
   shell:

@@ -1,0 +1,54 @@
+---
+- name: K8S; create a argo namespace
+  k8s:
+    name: argo
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: GET_URL; download the argo manifest file
+  get_url:
+    url: "https://github.com/argoproj/argo-workflows/releases/download/{{ ARGO_VERSION }}/install.yaml"
+    dest: "{{ eddie_install_dir }}/argo.yaml"
+
+- name: SHELL; apply argo manifest
+  shell: "kubectl apply -f {{ eddie_install_dir }}/argo.yaml"
+
+# This is for argo-events
+- name: K8S; create a argo-events namespace
+  k8s:
+    name: argo-events
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: GET_URL; download the argo-events manifest file
+  get_url:
+    url: "https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml"
+    dest: "{{ eddie_install_dir }}/argo-events.yaml"
+
+- name: GET_URL; download the argo-events validating admission controller manifest file
+  get_url:
+    url: "https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install-validating-webhook.yaml"
+    dest: "{{ eddie_install_dir }}/argo-events-validating-webhook.yaml"
+
+- name: COPY; create event bus
+  copy:
+    content: |
+      apiVersion: argoproj.io/v1alpha1
+      kind: EventBus
+      metadata:
+        name: default
+        namespace: argo-events
+      spec:
+        jetstream:
+          replicas: 3
+          version: latest
+    dest: "{{ eddie_install_dir }}/argo-events-eventbus-jetstream.yaml"
+
+- name: SHELL; apply argo manifest
+  shell: "kubectl apply -f {{ eddie_install_dir }}/{{ item }}"
+  loop:
+    - argo-events.yaml
+    - argo-events-validating-webhook.yaml
+    - argo-events-eventbus-jetstream.yaml

@@ -2,22 +2,25 @@
 This repo is for the public version of the Event-Driven Detector for IOT and Edge (EDDIE). 
 
 # Pre-requisites
-- k3s installed
 - minio installed and object storage configured
 - argo installed
 
 # TODO
-- [ ] Add task to install k3s
+- [X] Add task to install k3s
 - [ ] Add task to install kubectl
 - [ ] Add task to install nats
 - [ ] Add task to install minio kubernetes and mc tool
 - [ ] Add task to install argo workflows and events
-- [ ] Add gocmds and config file
+- [X] Add gocmds and config file
 - [ ] Add destroy playbook
 - [X] move sensitive configuration to datastore
 
 ## Instructions
 
+1. execute init.sh
+```
+    ./init.sh
+```
 1. create a file called `terraform.tfvars` with the following content:
 ```
 cyverse_user="myusername"

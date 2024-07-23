@@ -1,0 +1,38 @@
+---
+- name: GET_URL; download kubectl key
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://pkgs.k8s.io/core:/stable:/{{ KUBECTL_VERSION }}/deb/Release.key | sudo gpg --dearmor -o --batch --yes /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name: GET_URL; download helm key
+  ansible.builtin.shell:
+    cmd: curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+  args:
+    creates: /usr/share/keyrings/helm.gpg
+
+- name: SHELL; chmod kubernetes-apt-keyring.gpg
+  ansible.builtin.shell:
+    cmd: chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name: APT_REPOSITORY; Add kubectl repository into sources list
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/{{ KUBECTL_VERSION }}/deb/ /"
+    state: present
+
+- name: SHELL; get the architecture
+  ansible.builtin.shell:
+    cmd: dpkg --print-architecture
+  register: arch
+
+- name: APT_REPOSITORY; Add helm repository into sources list
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ arch.stdout }} signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main"
+    state: present
+
+- name: APT; install kubectl
+  apt:
+    name: 
+      - kubectl
+      - helm
+    update_cache: true

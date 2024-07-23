@@ -11,7 +11,7 @@
 
 - name: SHELL; create configuration 
   ansible.builtin.shell:
-    cmd: "rclone config create {{ minio_alias }} s3 provider Minio env_auth false access_key_id {{ minio_access_key }} secret_access_key {{ minio_secret_key }} endpoint {{ minio_external_url }} acl private"
+    cmd: "rclone config create {{ minio_alias }} s3 provider Minio env_auth false access_key_id {{ minio_access_key }} secret_access_key {{ minio_secret_key }} endpoint {{ minio_cluster_url }} acl private"
 
 - name: FILE; create a symlink for rclone 
   ansible.builtin.file:

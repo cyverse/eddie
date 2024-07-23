@@ -1,18 +1,87 @@
-- name: PLAY; install workflow
+- name: PLAY; install controller
   hosts: all
+  become: true
   tasks:
-  - name: SET_FACT; set python interpreter
-    ansible.builtin.set_fact: ansible_python_interpreter="/usr/bin/python3"
+    - name: SET_FACT; set python interpreter
+      ansible.builtin.set_fact: ansible_python_interpreter="/usr/bin/python3"
 
-  - ansible.builtin.import_role:
-      name: thingsboard
-    when: thingsboard_host is defined and thingsboard_host != ""
+    - name: APT; install common packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - gnupg
+          - jq
+        state: present
 
-  - ansible.builtin.import_role:
-      name: minio
+    - name: PIP; install common pip packages
+      pip:
+        name:
+          - kubernetes
+        state: present
 
-  - ansible.builtin.import_role:
-      name: rclone
+    - name: FILE; create the eddie_install_dir
+      file:
+        path: "{{ eddie_install_dir }}"
+        state: directory
 
-  - ansible.builtin.import_role:
-      name: eddie
+    # - ansible.builtin.import_role:
+    #     name: cyverse-ansible.docker
+
+    # - ansible.builtin.import_role:
+    #     name: cyverse-ansible.ansible_k3s
+
+    - name: FILE; create directory for root if necessary
+      ansible.builtin.file:
+        path:  /root/.kube
+        owner: root
+        group: root
+        mode: '0750'
+
+    - name: COPY; copy the kubectl for root
+      ansible.builtin.copy:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /root/.kube/config
+        owner: root
+        group: root
+        mode: '0640'
+
+
+
+    # - ansible.builtin.import_role:
+    #     name: k8s_tools
+
+    - ansible.builtin.import_role:
+        name: argo
+
+  # - ansible.builtin.import_role:
+  #     name: thingsboard
+  #   when: thingsboard_host is defined and thingsboard_host != ""
+
+    # - ansible.builtin.import_role:
+    #     name: minio
+
+    # - ansible.builtin.import_role:
+    #     name: rclone
+
+  # - ansible.builtin.import_role:
+  #     name: eddie
+
+- name: PLAY; install controller
+  hosts: all
+  become: false
+  tasks:
+    - name: FILE; create directory for ansible user if necessary
+      ansible.builtin.file:
+        path:  "/home/{{ ansible_user | default(ansible_env.USER) }}/.kube"
+        owner: "{{ ansible_user | default(ansible_env.USER) }}"
+        group: "{{ ansible_user | default(ansible_env.USER) }}"
+        mode: '0750'
+
+    - name: COPY; copy the kubectl for ansible_user
+      ansible.builtin.copy:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "/home/{{ ansible_user | default(ansible_env.USER) }}/.kube/config"
+        owner: "{{ ansible_user | default(ansible_env.USER) }}"
+        group: "{{ ansible_user | default(ansible_env.USER) }}"
+        mode: '0640'

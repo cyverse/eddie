@@ -8,3 +8,4 @@ ansible/configs
 ansible/private_ssh_key
 gocmd
 gocmd.yaml
+config.sh

@@ -13,12 +13,11 @@ resource null_resource "iot_config_files" {
 
     # note, sftp will overwrite existing files
     provisioner "local-exec" {
-        interpreter = ["/bin/bash", "-c"]
+        interpreter = ["bash", "-c"]
         command = <<EOT
-            export GOCMD_VER=$(curl -L -s https://raw.githubusercontent.com/cyverse/gocommands/main/VERSION.txt)
-            curl -L -s https://github.com/cyverse/gocommands/releases/download/v0.8.5/gocmd-v0.8.5-linux-amd64.tar.gz | tar zxvf -
-            chmod a+x gocmd
 
+            chmod a+x init.sh
+            ./init.sh
             echo 'irods_host: "data.cyverse.org"' >gocmd.yaml
             echo 'irods_port: 1247' >>gocmd.yaml
             echo 'irods_user_name: "${var.cyverse_user}"' >>gocmd.yaml
@@ -27,7 +26,7 @@ resource null_resource "iot_config_files" {
 
             cat gocmd.yaml
 
-            ./gocmd -c gocmd.yaml get -f ${var.cyverse_asset_config_dir}
+            gocmd -c gocmd.yaml get -f ${var.cyverse_asset_config_dir}
             chmod 0400 configs/ssh_key          
         EOT
         working_dir = "${path.module}/ansible"
@@ -43,7 +42,13 @@ resource "null_resource" "my_iot" {
     }
 
     provisioner "local-exec" {
-        interpreter = ["/bin/bash", "-c"]
+        interpreter = ["bash", "-c"]
+        command = "ansible-galaxy install -r requirements.yaml"
+        working_dir = "${path.module}/ansible"
+    }
+
+    provisioner "local-exec" {
+        interpreter = ["bash", "-c"]
         command = <<EOT
             set -x
             # looping because terraform for_each/fileset not working as expected
@@ -51,10 +56,12 @@ resource "null_resource" "my_iot" {
             export ANSIBLE_HOST_KEY_CHECKING=False
             export ANSIBLE_SSH_PIPELINING=True
             export ANSIBLE_CONFIG=ansible.cfg
-            for fn in $dir/*.yaml; do
-                echo "processing $fn"
-                ansible-playbook --private-key=configs/ssh_key -i $fn -e model_path_override="$MODEL_PATH_OVERRIDE" -e model_version_override="$MODEL_VERSION_OVERRIDE" --forks=10 playbook.yaml
-            done
+
+            # for fn in $dir/*.yaml; do
+            echo "processing $fn"
+            # note, if connection is localhost then ssh_key is ignored
+            ansible-playbook --private-key=configs/ssh_key -i configs/${var.instance_name}.yaml -e model_path_override="$MODEL_PATH_OVERRIDE" -e model_version_override="$MODEL_VERSION_OVERRIDE" --forks=10 playbook.yaml
+            # done
         EOT
         working_dir = "${path.module}/ansible"
 

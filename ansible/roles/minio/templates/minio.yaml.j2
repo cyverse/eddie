@@ -1,0 +1,100 @@
+# Deploys a new Namespace for the MinIO Pod
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: minio-dev # Change this value if you want a different namespace name
+#   labels:
+#     name: minio-dev # Change this value to match metadata.name
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: local-opt-minio-data-pv
+spec:
+  capacity:
+    storage: {{ minio_storage_size }}Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  local:
+    path: {{ minio_host_path }}
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - {{ ansible_nodename }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: local-opt-minio-data-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ minio_storage_size }}Gi
+  storageClassName: local-storage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: minio
+  name: minio
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      containers:
+      - name: minio
+        image: quay.io/minio/minio:{{ minio_version }}
+        command:
+        - /bin/bash
+        - -c
+        args: 
+        - minio server /data --console-address :9090 --address :9001
+        env:
+        - name: MINIO_ROOT_USER
+          value: {{ minio_access_key }}
+        - name: MINIO_ROOT_PASSWORD
+          value: {{ minio_secret_key }}
+        volumeMounts:
+        - mountPath: /data
+          name: localvolume
+        ports:
+        - containerPort: 9001
+        - containerPort: 9090
+      volumes:
+      - name: localvolume
+        persistentVolumeClaim:
+          claimName: local-opt-minio-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-service
+spec:
+  selector:
+    app: minio
+  ports:
+    - name: minio-api
+      protocol: TCP
+      port: 9001
+      targetPort: 9001
+    - name: minio-ui
+      protocol: TCP
+      port: 9090
+      targetPort: 9090
