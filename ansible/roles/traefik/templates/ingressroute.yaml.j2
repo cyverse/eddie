@@ -1,0 +1,63 @@
+# apiVersion: traefik.containo.us/v1alpha1
+# kind: Middleware
+# metadata:
+#   name: stripprefix
+# spec:
+#   stripPrefix:
+#     prefixes:
+#       - /minio
+# ---
+# Disable auto-detection
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: autodetect-disable
+spec:
+  contentType:
+    autoDetect: false
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: minio-ui-ingress
+  namespace: default
+spec:
+  entryPoints:
+{% if minio_ui_ingress_port is defined and minio_ui_ingress_port|bool %}
+  - minio-ui
+{% else %}
+  - websecure
+{% endif %}
+  routes:
+  - kind: Rule
+{% if minio_ui_ingress_host is defined %}
+    match: HostRegexp(`{{ minio_ui_ingress_host }}`)
+{% else %}
+    match: HostRegexp(`{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}`)
+{% endif %}
+    services:
+    - kind: Service
+      name: minio-service
+      passHostHeader: true
+      port: 9090
+    middlewares:
+      - name: autodetect-disable
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: minio-api-ingress
+  namespace: default
+spec:
+  entryPoints:
+  - {{ minio_api_ingress_port }}
+  routes:
+  - kind: Rule
+    match: HostRegexp(`{{ ansible_default_ipv4.address|default(ansible_all_ipv4_addresses[0]) }}`)
+    services:
+    - kind: Service
+      name: minio-service
+      passHostHeader: true
+      port: 9090
+    middlewares:
+      - name: autodetect-disable

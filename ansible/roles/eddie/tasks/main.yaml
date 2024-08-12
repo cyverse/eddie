@@ -6,6 +6,15 @@
     mode: 0755
     recurse: true
 
+- name: COPY; copy files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/opt/eddie/{{ minio_bucket_name }}/{{ item}}"
+    mode: '0644'
+  loop:
+    - argo-sensor-rbac.yaml
+    - argo-workflow-rbac.yaml
+
 - name: TEMPLATE; copy over the template files
   template: 
     src: "{{ item }}.j2"

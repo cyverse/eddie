@@ -9,3 +9,5 @@ ansible/private_ssh_key
 gocmd
 gocmd.yaml
 config.sh
+ansible/roles/eddie/templates/sensor.yaml
+ansible/roles/traefik/templates/ingressroute.yaml

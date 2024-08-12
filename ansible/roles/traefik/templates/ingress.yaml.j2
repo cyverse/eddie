@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  # annotations:
+  #  cert-manager.io/issuer: "le-edge1-atmo-cloud-http"
+spec:
+  # tls:
+  #   - hosts:
+  #     - edge1.atmo.cloud
+  #     secretName: le-edge1-atmo-cloud-http
+  rules:
+    # - host: edge1.atmo.cloud
+    #   http:
+    - http:
+        paths:
+          - path: /minio
+            pathType: Prefix
+            backend:
+              service:
+                name: minio-service
+                port:
+                  name: minio-ui
+

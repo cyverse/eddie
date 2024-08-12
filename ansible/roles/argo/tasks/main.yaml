@@ -52,3 +52,14 @@
     - argo-events.yaml
     - argo-events-validating-webhook.yaml
     - argo-events-eventbus-jetstream.yaml
+
+- name: GET_URL; install argo cli
+  ansible.builtin.get_url:
+    url: https://github.com/argoproj/argo-workflows/releases/download/{{ ARGO_VERSION }}/argo-linux-amd64.gz
+    dest: /tmp/argo-linux-amd64-{{ ARGO_VERSION }}.gz
+    mode: '6440'
+
+- name: SHELL; gunzip file
+  ansible.builtin.shell: 
+    cmd: cp argo-linux-amd64-{{ ARGO_VERSION }}.gz argo-linux-amd64.gz; gunzip argo-linux-amd64.gz; chmod a+x argo-linux-amd64; mv argo-linux-amd64 /usr/local/bin/argo
+    chdir: /tmp/

@@ -61,9 +61,9 @@ spec:
                         - name: task-slack-notify
                           template: slack
                           dependencies: [task-gocmds]
-                        - name: task-thingsboard-notify
-                          template: thingsboard
-                          dependencies: [task-ultralytics]
+                        # - name: task-thingsboard-notify
+                        #   template: thingsboard
+                        #   dependencies: [task-ultralytics]
 
                   # first, use ultralytics to process any new files
                   - name: ultralytics
@@ -77,7 +77,7 @@ spec:
                             key: "{{ '{{' }}workflow.parameters.inputfile{{ '}}' }}"
                     container:
                       # image: registry.gitlab.com/stack0/edge-images/testing-app1:latest
-                      image: ultralytics/ultralytics:8.1.14-arm64
+                      image: {{ ULTRALYTICS_IMAGE }}
                       # args: ["yolo", "predict", "model=yolov8n.pt", "source='/opt/ultralytics/incoming/{{ '{{' }}workflow.parameters.inputfile{{ '}}' }}'"]
                       args: ["yolo", "predict", "model=/opt/models/{{ dvc_model_path }}", "source='/opt/ultralytics/incoming/{{ '{{' }}workflow.parameters.inputfile{{ '}}' }}'"]
                       volumeMounts:
@@ -89,7 +89,7 @@ spec:
                   # second, transfer any processed and resulting data
                   - name: gocmd
                     script:
-                      image: registry.gitlab.com/stack0/edge-images/gocmd:latest
+                      image: {{ GOCMDS_IMAGE }}
                       command: [bash]
                       source: |
                         find /opt/ultralytics
@@ -105,7 +105,7 @@ spec:
                   # third, transfer any processed and resulting data
                   - name: slack
                     script:
-                      image: registry.gitlab.com/stack0/edge-images/gocmd:latest
+                      image: {{ GOCMDS_IMAGE }}
                       command: [bash]
                       source: |
                         cd /usr/src/ultralytics
@@ -121,18 +121,18 @@ spec:
                       - name: outgoing-dir
                         mountPath: /usr/src/ultralytics/runs
 
-                  - name: thingsboard
-                    script:
-                      image: registry.gitlab.com/stack0/edge-images/mqtt-clients:latest
-                      command: [sh]
-                      source: |
-                        mosquitto_pub -d -q 1 -h "{{ thingsboard_host }}" -p {{ thingsboard_mqtt_port }} -t "v1/devices/me/telemetry" -u "${ACCESS_TOKEN}" -m {"image_count":1}
-                      env:
-                      - name: ACCESS_TOKEN
-                        valueFrom:
-                          secretKeyRef:
-                            name: eddie-{{ minio_bucket_name }}
-                            key: thingsboard_device_access_token
+                  # - name: thingsboard
+                  #   script:
+                  #     image: {{ MQTT_CLIENTS_IMAGE }}
+                  #     command: [sh]
+                  #     source: |
+                  #       mosquitto_pub -d -q 1 -h "{{ thingsboard_host }}" -p {{ thingsboard_mqtt_port }} -t "v1/devices/me/telemetry" -u "${ACCESS_TOKEN}" -m {"image_count":1}
+                  #     env:
+                  #     - name: ACCESS_TOKEN
+                  #       valueFrom:
+                  #         secretKeyRef:
+                  #           name: eddie-{{ minio_bucket_name }}
+                  #           key: thingsboard_device_access_token
 
 
           # The container args from the workflow are overridden by the s3 notification key

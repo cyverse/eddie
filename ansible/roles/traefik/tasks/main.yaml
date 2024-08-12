@@ -1,0 +1,26 @@
+---
+- name: SHELL; add repo
+  shell: helm repo add traefik https://traefik.github.io/charts
+
+- name: SHELL; helm repo update
+  shell: helm repo update
+
+- name: TEMPLATE; copy over the values
+  template: 
+    src: "{{ item }}.j2"
+    dest: "{{ eddie_install_dir }}/{{ item}}"
+  loop:
+    - values.yaml
+    # - ingress.yaml
+    - ingressroute.yaml
+
+- name: SHELL; install traefik
+  shell: helm upgrade --install traefik traefik/traefik --values values.yaml --version 27.0.2
+  args:
+    chdir: "{{ eddie_install_dir }}"
+
+- name: SHELL; apply ingress manifest
+  shell: "kubectl apply -f {{ eddie_install_dir }}/{{ item }}"
+  loop:
+    # - ingress.yaml
+    - ingressroute.yaml

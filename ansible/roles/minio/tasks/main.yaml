@@ -8,12 +8,12 @@
 - name: TEMPLATE; copy over the template files
   template: 
     src: "{{ item }}.j2"
-    dest: "/opt/eddie/{{ item}}"
+    dest: "{{ eddie_install_dir }}/{{ item}}"
   loop:
     - minio.yaml
 
 - name: SHELL; apply minio.yaml
-  shell: "kubectl apply -f /opt/eddie/minio.yaml"
+  shell: "kubectl apply -f {{ eddie_install_dir }}/minio.yaml"
 
 - name: SHELL; get the minio external cluster url
   shell: kubectl get svc minio-service -o json|jq -r '.spec.clusterIP'

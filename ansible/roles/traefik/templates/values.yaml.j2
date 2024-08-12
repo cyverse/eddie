@@ -1,0 +1,20 @@
+additionalArguments:
+  # - "--log.level=DEBUG"
+  # - "--entrypoints.websecure.http.tls"
+  - "--ping"
+  - "--metrics.prometheus"
+experimental:
+  plugins:
+    fail2ban:
+      moduleName: "github.com/tomMoulard/fail2ban"
+      version: "v0.6.6"
+{% if minio_ui_ingress_port is defined and minio_ui_ingress_port|bool %}
+ports:
+  minio-ui:
+    # hostIP: 127.0.0.1
+    port: 9090
+    expose:
+      default: true
+    exposedPort: 9090
+    protocol: TCP
+{% endif %}

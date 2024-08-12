@@ -64,6 +64,9 @@
         name: rclone
 
     - ansible.builtin.import_role:
+        name: traefik
+
+    - ansible.builtin.import_role:
         name: eddie
 
 - name: PLAY; install controller
