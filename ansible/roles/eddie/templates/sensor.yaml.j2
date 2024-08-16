@@ -61,8 +61,8 @@ spec:
                         - name: task-slack-notify
                           template: slack
                           dependencies: [task-gocmds]
-                        - name: task-thingsboard-notify
-                          template: thingsboard
+                        - name: task-iot-stream-data-manager-notify
+                          template: iot-stream-data-manager
                           dependencies: [task-ultralytics]
 
                   # first, use ultralytics to process any new files
@@ -124,7 +124,7 @@ spec:
                       - name: outgoing-dir
                         mountPath: /usr/src/ultralytics/runs
 
-                  - name: thingsboard
+                  - name: iot-stream-data-manager
                     script:
                       image: {{ MQTT_CLIENTS_IMAGE }}
                       command: [sh]
