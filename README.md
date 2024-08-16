@@ -16,4 +16,6 @@ cyverse_asset_config_dir="/iplant/home/some/dir/to/config"
 1. `terraform init`
 3. `terraform apply -auto-approve`
 
-#
+# Acknowledgements
+
+This project was funded by NSF CyVerse and NSF COALESCE
