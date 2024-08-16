@@ -61,9 +61,9 @@ spec:
                         - name: task-slack-notify
                           template: slack
                           dependencies: [task-gocmds]
-                        # - name: task-thingsboard-notify
-                        #   template: thingsboard
-                        #   dependencies: [task-ultralytics]
+                        - name: task-thingsboard-notify
+                          template: thingsboard
+                          dependencies: [task-ultralytics]
 
                   # first, use ultralytics to process any new files
                   - name: ultralytics
@@ -101,6 +101,9 @@ spec:
                         mountPath: /opt/gocmd/config.yaml
                         subPath: config.yaml
                         readOnly: true
+                    retryStrategy:
+                      limit: 3
+                      retryPolicy: "Always"
 
                   # third, transfer any processed and resulting data
                   - name: slack
@@ -121,18 +124,21 @@ spec:
                       - name: outgoing-dir
                         mountPath: /usr/src/ultralytics/runs
 
-                  # - name: thingsboard
-                  #   script:
-                  #     image: {{ MQTT_CLIENTS_IMAGE }}
-                  #     command: [sh]
-                  #     source: |
-                  #       mosquitto_pub -d -q 1 -h "{{ thingsboard_host }}" -p {{ thingsboard_mqtt_port }} -t "v1/devices/me/telemetry" -u "${ACCESS_TOKEN}" -m {"image_count":1}
-                  #     env:
-                  #     - name: ACCESS_TOKEN
-                  #       valueFrom:
-                  #         secretKeyRef:
-                  #           name: eddie-{{ minio_bucket_name }}
-                  #           key: thingsboard_device_access_token
+                  - name: thingsboard
+                    script:
+                      image: {{ MQTT_CLIENTS_IMAGE }}
+                      command: [sh]
+                      source: |
+                        mosquitto_pub -d -q 1 -h "{{ thingsboard_host }}" -p {{ thingsboard_mqtt_port }} -t "v1/devices/me/telemetry" -u "${ACCESS_TOKEN}" -m {"image_count":1}
+                      env:
+                      - name: ACCESS_TOKEN
+                        valueFrom:
+                          secretKeyRef:
+                            name: eddie-{{ minio_bucket_name }}
+                            key: thingsboard_device_access_token
+                    retryStrategy:
+                      limit: 3
+                      retryPolicy: "Always"
 
 
           # The container args from the workflow are overridden by the s3 notification key

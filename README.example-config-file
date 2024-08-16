@@ -13,10 +13,13 @@ all:
         cyverse_pass: my-cyverse-password
         cyverse_upload_dir: the-cyverse-upload-directory-for-processed-images
 
+        minio_version: RELEASE.2024-07-16T23-46-41Z
+        minio_storage_size: 200
+        minio_host_path: /opt/minio-data
         minio_alias: myminio
         minio_endpoint: minio-service.default:9001
         minio_external_url: http://1.2.3.4:9001
-        minio_bucket_name: coalesce-data-incoming
+        minio_bucket_name: my-bucket
         minio_access_key: minio-access-key
         minio_secret_key: minio-secret-key
 
@@ -27,7 +30,7 @@ all:
         dvc_git_models_url: github.com/user/somerepo.git
         dvc_git_token: some-github-token
         dvc_model_path: some-dir/model.pt
-        dvc_remote_storage_name: coalesce
+        dvc_remote_storage_name: eddie
         dvc_branch: "main"
 
         thingsboard_host: "thingsboard.host.edu"
@@ -35,3 +38,11 @@ all:
         thingsboard_device_key: "key"
         thingsboard_device_secret: "secret"
         thingsboard_install_path: /opt/thingsboard
+        thingsboard_device_access_token_path: /opt/thingsboard/access_token
+
+        KUBECTL_VERSION: "v1.30"
+        ARGO_VERSION: "v3.4.8"
+
+        ULTRALYTICS_IMAGE: "ultralytics/ultralytics:8.1.14"
+        GOCMDS_IMAGE: "registry.gitlab.com/stack0/edge-images/gocmd:latest"
+        MQTT_CLIENTS_IMAGE: "registry.gitlab.com/stack0/edge-images/mqtt-clients:latest"

@@ -29,6 +29,7 @@ variable "model_version_override" {
 variable "username" {
   type        = string
   description = "name of user"
+  default     = "notused"
 }
 
 # this is minimumally needed

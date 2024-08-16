@@ -13,14 +13,30 @@
     dest: "{{ thingsboard_install_path }}/{{ item}}"
     mode: 0755
   loop:
-    - tb-device-provision.py
     - tb-sys-telemetry.sh
 
-- name: SHELL; call the provisioning script if necessary
-  shell: "python {{ thingsboard_install_path }}/tb-device-provision.py"
+- block:
+  - name: TEMPLATE; copy over the template files
+    template: 
+      src: "{{ item }}.j2"
+      dest: "{{ thingsboard_install_path }}/{{ item}}"
+      mode: 0755
+    loop:
+      - tb-device-provision.py
+
+  - name: SHELL; call the provisioning script if necessary
+    shell: "python {{ thingsboard_install_path }}/tb-device-provision.py"
+    args:
+      creates: "{{ thingsboard_device_access_token_path }}"
+      chdir: "{{ thingsboard_install_path }}"
+  when: thingsboard_device_key is defined
+
+- name: SHELL; write token to token file if thingsboard_devcie_access_token exists
+  shell: "echo -n \"{{ thingsboard_devcie_access_token }}\" >{{ thingsboard_device_access_token_path }}"
   args:
     creates: "{{ thingsboard_device_access_token_path }}"
     chdir: "{{ thingsboard_install_path }}"
+  when: thingsboard_devcie_access_token is defined
 
 - name: COPY; copy over thingsboard telemetry cron
   copy:

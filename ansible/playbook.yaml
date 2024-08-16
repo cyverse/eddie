@@ -53,9 +53,9 @@
     - ansible.builtin.import_role:
         name: argo
 
-  # - ansible.builtin.import_role:
-  #     name: thingsboard
-  #   when: thingsboard_host is defined and thingsboard_host != ""
+    - ansible.builtin.import_role:
+        name: thingsboard
+      when: thingsboard_host is defined and thingsboard_host != ""
 
     - ansible.builtin.import_role:
         name: minio
